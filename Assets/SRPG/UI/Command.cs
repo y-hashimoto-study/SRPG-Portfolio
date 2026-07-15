@@ -8,14 +8,14 @@ public class Command : MonoBehaviour
     [SerializeField] private Button WaitButton;
     [SerializeField] private Button ItemButton;
     [SerializeField] private Button ReturnButton;
-    void Awake()
+    void Start()
     {
-        ActionButton.onClick.AddListener(Debugyou);
-        AttackButton.onClick.AddListener(MapManager.Instance.SetAttackMode);
-        WaitButton.onClick.AddListener(MapManager.Instance.MoveFinish);
+        ActionButton.onClick.AddListener(ToDOACtion);
+        AttackButton.onClick.AddListener(BattleManager.Instance.SetAttackTargetMode);
+        WaitButton.onClick.AddListener(BattleManager.Instance.MoveFinish);
         ItemButton.onClick.AddListener(() =>
         {
-            UIManager.Instance.OpenInventory();
+            UIManager.Instance.OpenInventory(BattleManager.Instance.SelectedUnit);
             UIManager.Instance.PushMenu(UIManager.MenuUIStateEnum.Inventory);
         });
         
@@ -26,7 +26,7 @@ public class Command : MonoBehaviour
         ActionButton.gameObject.SetActive(isAction);
         AttackButton.gameObject.SetActive(isAttack);
     }
-    public void Debugyou()
+    public void ToDOACtion()
     {
         Debug.Log("宝箱を開けるなどのイベント");
     }

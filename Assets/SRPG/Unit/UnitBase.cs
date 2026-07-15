@@ -49,7 +49,7 @@ public abstract class UnitBase : MonoBehaviour,IMapObject
     {
       onCube.CurrentObject = this;
       Debug.Log($"{gameObject.name} を {Position} に登録しました");
-      MapManager.Instance.AddAllUnitList(this);
+      BattleManager.Instance.AddAllUnitList(this);
     }
   }
   public virtual void Damage(int attack , bool isMagic)
@@ -88,7 +88,7 @@ public abstract class UnitBase : MonoBehaviour,IMapObject
   }
   public virtual void Die()
   {
-    MapManager.Instance.DieUnit(Position);
+    BattleManager.Instance.DieUnit(Position);
     Destroy(gameObject);
   }
   public void AddItem(ItemBase getItem)

@@ -10252,12 +10252,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1094752944}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b12f952e82b3e445980c573b69060ed8, type: 3}
+  m_Script: {fileID: 11500000, guid: 7dcb3be5cc8d048938212afdbbed0831, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MapManager
+  m_EditorClassIdentifier: Assembly-CSharp::MapManager_2
   _mapCubeParent: {fileID: 623884312}
   _unitMoveSpeed: 30
-  CurrentUseItemData: {fileID: 0}
 --- !u!1001 &1095651397
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13317,6 +13316,7 @@ Transform:
   - {fileID: 1094752945}
   - {fileID: 1791183169}
   - {fileID: 106506850}
+  - {fileID: 1883202067}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1573625032
@@ -15269,9 +15269,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1791183168}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca66e177df61746a9a5b629721a1da46, type: 3}
+  m_Script: {fileID: 11500000, guid: 45b5dbb4d4d1240ada9b9648450ff095, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIManager
+  m_EditorClassIdentifier: Assembly-CSharp::UIManager_2
   _commandPanel: {fileID: 9174356764570037553}
   _inventoryPanel: {fileID: 7466228025062514252}
   _confirmationPanel: {fileID: 8602374797751937640}
@@ -16036,6 +16036,51 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8225786652232371996, guid: fa26f960a370a4eb1b7e04508ab25d79, type: 3}
   m_PrefabInstance: {fileID: 1881643484}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1883202066
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1883202067}
+  - component: {fileID: 1883202068}
+  m_Layer: 0
+  m_Name: Battle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1883202067
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1883202066}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1547271510}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1883202068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1883202066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 501c1b3b3f6eb4cfd8b9b12352d34b10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleManager
+  CurrentUseItemData: {fileID: 0}
 --- !u!1001 &1888585988
 PrefabInstance:
   m_ObjectHideFlags: 0

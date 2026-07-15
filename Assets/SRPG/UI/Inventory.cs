@@ -10,20 +10,21 @@ public class Inventory : MonoBehaviour
     {
         _backButton.onClick.AddListener(UIManager.Instance.BackMenu);
     }
-    public void OpenInventory()
+    public void OpenInventory(UnitBase unit)
     {
         int i = 0;
-        if(MapManager.Instance.SelectedUnit is PlayerUnit player)
+        if(unit is PlayerUnit player)
         {
             if(player.EquipedWeapon != null)
             {
+                WeaponData weapon = player.EquipedWeapon;
                 if(i >= _inventoryButton.Count)return;
                 _inventoryButton[i].gameObject.SetActive(true);
                 _inventoryButton[i].SetUp(player.EquipedWeapon,true);
 
-                _inventoryButton[i].ItemButtonClicked -= MapManager.Instance.Equiped;
-                _inventoryButton[i].ItemButtonClicked -= MapManager.Instance.UseItem;
-                _inventoryButton[i].ItemButtonClicked += MapManager.Instance.Equiped;
+                _inventoryButton[i].ItemButtonClicked -= BattleManager.Instance.Equiped;
+                _inventoryButton[i].ItemButtonClicked -= BattleManager.Instance.SetUseItem;
+                _inventoryButton[i].ItemButtonClicked += BattleManager.Instance.Equiped;
                 i++;
             }
             foreach (ItemBase item in player.Inventory)
@@ -32,9 +33,9 @@ public class Inventory : MonoBehaviour
                 _inventoryButton[i].gameObject.SetActive(true);
                 _inventoryButton[i].SetUp(item,false);
 
-                _inventoryButton[i].ItemButtonClicked -= MapManager.Instance.Equiped;
-                _inventoryButton[i].ItemButtonClicked -= MapManager.Instance.UseItem;
-                _inventoryButton[i].ItemButtonClicked += MapManager.Instance.UseItem;
+                _inventoryButton[i].ItemButtonClicked -= BattleManager.Instance.Equiped;
+                _inventoryButton[i].ItemButtonClicked -= BattleManager.Instance.SetUseItem;
+                _inventoryButton[i].ItemButtonClicked += BattleManager.Instance.SetUseItem;
                 i++;
             }
             while(i < _inventoryButton.Count)
@@ -48,8 +49,8 @@ public class Inventory : MonoBehaviour
     {
         foreach(InventoryButton button in _inventoryButton)
         {
-            button.ItemButtonClicked -= MapManager.Instance.Equiped;
-            button.ItemButtonClicked -= MapManager.Instance.UseItem;
+            button.ItemButtonClicked -= BattleManager.Instance.Equiped;
+            button.ItemButtonClicked -= BattleManager.Instance.SetUseItem;
         }
     }
 }

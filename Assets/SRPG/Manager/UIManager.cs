@@ -60,12 +60,12 @@ public class UIManager : MonoBehaviour
                  CloseInventory();
                 break;
                 case MenuUIStateEnum.ItemTargetSelect:
-                 MapManager.Instance.ClearColorAttackMapCube();
+                 BattleManager.Instance.ClearRangeColors(BattleManager.RangeType.Item);
                  CloseReturnButton();
                 break;
                 case MenuUIStateEnum.Confirmation:
                  CloseConfirmation();//なり得ないよう設計すること
-                 Debug.Log("エラーこの状態にはならないはずです Confiremation");
+                 Debug.Log("エラーこの状態にはならないはず Confiremation");
                 break;
             }
         }
@@ -88,7 +88,7 @@ public class UIManager : MonoBehaviour
         _returnPanel.gameObject.SetActive(true);
         _returnPanel.ReturnAction = () =>
         {
-            if(MapManager.Instance.CurrentGameState == MapManager.GameState.Disabled) return;
+            if(BattleManager.Instance.CurrentGameState == BattleManager.GameState.Disabled) return;
              if(returnMethod != null)returnMethod();
              BackMenu();
         };
@@ -106,19 +106,19 @@ public class UIManager : MonoBehaviour
     {
         _commandPanel.gameObject.SetActive(false);
     }
-    public void OpenInventory()
+    public void OpenInventory(UnitBase unit)
     {
         _inventoryPanel.gameObject.SetActive(true);
-        _inventoryPanel.OpenInventory();
+        _inventoryPanel.OpenInventory(unit);
     }
     public void CloseInventory()
     {
         _inventoryPanel.gameObject.SetActive(false);
     }
-    public void OpenConfirmation(Action action)
+    public void OpenConfirmation(Action action,ItemBase item)
     {
         _confirmationPanel.gameObject.SetActive(true);
-        _confirmationPanel.SetUp(MapManager.Instance.CurrentUseItemData.name + "を使いますか?");
+        _confirmationPanel.SetUp(item.name + "を使いますか?");
         _confirmationPanel.YesAction += action;
         _confirmationPanel.NoAction += BackMenu;
 
@@ -200,43 +200,36 @@ public class UIManager : MonoBehaviour
             switch (beforeStack)
             {
                 case MenuUIStateEnum.MoveSelect:
-                 MapManager.Instance.ChangeState(MapManager.GameState.SelectMove);
-                 OpenReturnButton(MapManager.Instance.ReturnMove);
-                 MapManager.Instance.BackUnit();
-                 MapManager.Instance.ColorMoveRange(false);
+                 BattleManager.Instance.ChangeState(BattleManager.GameState.SelectMove);
+                 OpenReturnButton(BattleManager.Instance.CancelMove);
+                 BattleManager.Instance.BackMoveUnit();
+                 BattleManager.Instance.ClearRangeColors(BattleManager.RangeType.Move);
                 break;
 
                 case MenuUIStateEnum.Command:
-                 MapManager.Instance.ChangeState(MapManager.GameState.SelectUI);
+                 BattleManager.Instance.ChangeState(BattleManager.GameState.SelectUI);
                  _commandPanel.gameObject.SetActive(true);
                 break;
 
                 case MenuUIStateEnum.AttackTargetSelect:
-                 MapManager.Instance.ChangeState(MapManager.GameState.AttackTarget);
-                 OpenReturnButton(MapManager.Instance.ClearColorAttackMapCube);
+                 BattleManager.Instance.ChangeState(BattleManager.GameState.AttackTarget);
+                 OpenReturnButton(()=>BattleManager.Instance.ClearRangeColors(BattleManager.RangeType.Attack));
                 break;
 
                 case MenuUIStateEnum.Inventory:
-                 OpenInventory();
+                 OpenInventory(BattleManager.Instance.SelectedUnit);
                 break;
 
                 case MenuUIStateEnum.ItemTargetSelect:
                  CloseConfirmation();
-                 ItemData item = MapManager.Instance.CurrentUseItemData;
-                 List<MapCube> targetCubes = MapManager.Instance.AttackRange(MapManager.Instance.SelectedUnit.Position,item.MinTargetRange,item.MaxTargetRange);
-                foreach (MapCube targetCube in targetCubes)
-                {
-                    (bool canUse,string reason)= item.Effect.CanUse(MapManager.Instance.SelectedUnit,targetCube.CurrentUnit);
-                    targetCube.CurrentColor = (canUse) ? Color.blue : Color.red;
-                    targetCube.LockColor = true;
-                }
-                OpenReturnButton(MapManager.Instance.ClearColorAttackMapCube);
-                MapManager.Instance.ChangeState(MapManager.GameState.ItemTargetSelect);
+                 BattleManager.Instance.ReColorTarget(BattleManager.RangeType.Item);
+                 OpenReturnButton(()=>BattleManager.Instance.ClearRangeColors(BattleManager.RangeType.Item));
+                 BattleManager.Instance.ChangeState(BattleManager.GameState.ItemTargetSelect);
                 break;
 
                 case MenuUIStateEnum.Confirmation:
                  //なり得ないように設計すること
-                 Debug.Log($"エラーこの状態にはならないはずです{beforeStack}");
+                 Debug.Log($"エラーこの状態にはならないはず{beforeStack}");
                 break;
                  
             }
@@ -244,7 +237,7 @@ public class UIManager : MonoBehaviour
         else
         {
             LockStatusPanel(false);
-            MapManager.Instance.ChangeState(MapManager.GameState.SelectUnit);
+            BattleManager.Instance.ChangeState(BattleManager.GameState.SelectUnit);
         }
     }
 
