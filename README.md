@@ -22,7 +22,7 @@ Assets/
     │   │   │   ├── DamageEffect.cs  # 攻撃アイテムを使ったときの効果
     │   │   │   ├── DamageItem.asset # 攻撃アイテムの設定データ
  　　│   │   │   └── Bomb.asset       # 攻撃アイテムのデータ
-    │   │   └── Heeal/               # 回復アイテムのデータファイル
+    │   │   └── Heal/               # 回復アイテムのデータファイル
     │   │       ├── HealEffect.cs    # 回復アイテムを使ったときの効果
     │   │       ├── HealItem.asset   # 回復アイテムの設定データ
  　　│   │       └── Potion.asset     # 回復アイテムのデータ
