@@ -21,4 +21,8 @@ public class GimmickBase : MonoBehaviour,IMapObject
     {
         
     }
+    public virtual void HealHp(int healValue)
+    {
+
+    }
 }

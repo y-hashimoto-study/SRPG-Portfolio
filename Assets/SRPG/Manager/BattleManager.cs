@@ -28,6 +28,7 @@ public class BattleManager : MonoBehaviour
     public UnitBase SelectedUnit{get; private set;}
     private List<MapCube> _moveMapCubes = new List<MapCube>();
     private Dictionary<Vector2Int,Vector2Int> _moveParentDictionary = new Dictionary<Vector2Int, Vector2Int>();
+    private Dictionary<Vector2Int,int> _costDictionary = new Dictionary<Vector2Int, int>();
     private MapCube _oldCube;
     public ItemData CurrentUseItemData;
     void Awake()
@@ -96,7 +97,8 @@ public class BattleManager : MonoBehaviour
              SelectedUnit = mapCube.CurrentUnit;
              if(SelectedUnit != null && SelectedUnit.Team == UnitBase.Type.Player && !SelectedUnit.IsActed)
                 {
-                    (_moveMapCubes,_moveParentDictionary)= MapManager.Instance.GetMoveRange(mapCube.Position,SelectedUnit);
+                    (_moveMapCubes,_moveParentDictionary,_costDictionary)= MapManager.Instance.GetMoveRange(mapCube.Position,SelectedUnit);
+                    MapManager.Instance.SetMapCubesColor(_moveMapCubes,false,Color.blue);
 
                     UIManager.Instance.OpenReturnButton(CancelMove);
                     UIManager.Instance.PushMenu(UIManager.MenuUIStateEnum.MoveSelect);
@@ -123,18 +125,21 @@ public class BattleManager : MonoBehaviour
             break;
 
             case GameState.AttackTarget:
-             CurrentGameState = GameState.Disabled;
-                if (_attackTargetRange.Contains(mapCube))
+                if (_attackTargetRange.Contains(mapCube) && mapCube.CurrentObject != null && mapCube.CurrentObject.Team != SelectedUnit.Team)
                 {
+                    CurrentGameState = GameState.Disabled;
                     mapCube.CurrentObject.Damage(SelectedUnit.Atk,SelectedUnit.IsMagic);
                     MoveFinish();
                 }
             break;
 
             case GameState.ItemTargetSelect:
-             if (!_itemTargetRange.Contains(mapCube) || mapCube.CurrentUnit == null)return;
-             CurrentGameState = GameState.Disabled;
-             (bool canUse,string reason) = CurrentUseItemData.Effect.CanUse(SelectedUnit,mapCube.CurrentUnit);
+             if (_itemTargetRange.Contains(mapCube) && mapCube.CurrentUnit != null && mapCube.CurrentUnit.Team != SelectedUnit.Team)
+             //Healを味方に使うならTeamを== Damageを敵に使うなら!=にする現在アイテムを他者に使う際はDamageのみのため!=とする
+             //アイテムをGimmickに使えるようにするかでまた変更する
+                {
+                    CurrentGameState = GameState.Disabled;
+                    (bool canUse,string reason) = CurrentUseItemData.Effect.CanUse(SelectedUnit,mapCube.CurrentUnit);
                 if (canUse)
                 {
                     UIManager.Instance.OpenConfirmation(() =>
@@ -150,6 +155,8 @@ public class BattleManager : MonoBehaviour
                     //reasonを表示する
                     //CurrentGameStateを戻す
                 }
+                }
+
             break;
         }
     }
@@ -172,6 +179,7 @@ public class BattleManager : MonoBehaviour
 
         CurrentGameState = GameState.SelectUI;
     }
+    //敵の行動終了後の更新　　Dieした時に次に移ってしまうのを直したい
     public void MoveFinish()
     {
         SelectedUnit.MoveFinish();
@@ -189,14 +197,14 @@ public class BattleManager : MonoBehaviour
         MapManager.Instance.SetMapCubesColor(_itemTargetRange,true,null);
         _itemTargetRange.Clear();
 
-        bool nextTurn = false;
+        bool currentTurn = false;
         switch (moveFinishTeam)
         {
             case UnitBase.Type.Player:
             foreach (UnitBase targetUnit in _allPlayers)
             {
                 if(targetUnit.IsActed)continue;
-                nextTurn = true;
+                currentTurn = true;
                 break;
             }
             break;
@@ -204,17 +212,26 @@ public class BattleManager : MonoBehaviour
             foreach (UnitBase targetUnit in _allEnemies)
             {
                 if(targetUnit.IsActed)continue;
-                nextTurn = true;
+                currentTurn = true;
                 break;
             }
             break;
         }
-        if (nextTurn)
+        if (currentTurn)
         {
-            CurrentGameState = (moveFinishTeam == UnitBase.Type.Player)?GameState.SelectUnit : GameState.Disabled;
+            if(moveFinishTeam == UnitBase.Type.Player)
+            {
+                CurrentGameState = GameState.SelectUnit;
+            }
+            else if(moveFinishTeam == UnitBase.Type.Enemy)
+            {
+                CurrentGameState = GameState.Disabled;
+                EnemyManager.Instance.UpdateEnemyTurn();
+            }
         }
         else
         {
+            CurrentGameState = GameState.Disabled;
             ChangeTurn(moveFinishTeam);
         }
     }
@@ -226,17 +243,44 @@ public class BattleManager : MonoBehaviour
             {
                 targetUnit.MoveReset();
             }
-            EnemyTurn();
+            EnemyManager.Instance.StartEnemyTurn();
         }
         if(finishTeam == UnitBase.Type.Enemy)
         {
+            foreach (UnitBase targetUnit in _allEnemies)
+            {
+                targetUnit.MoveReset();
+            }
             CurrentGameState = GameState.SelectUnit;
         }
     }
-    public void EnemyTurn()
+    public void EnemyTurn(int turnInt)
     {
-        Debug.Log("EnemyTurn");
-        ChangeTurn(UnitBase.Type.Enemy);
+        SelectedUnit = _allEnemies[turnInt];
+        //行動可能かの確認
+        List<MapCube> serchTargetCUbe = EnemyManager.Instance.GetSerchAttackTarget(_allEnemies[turnInt]);
+        if(serchTargetCUbe.Count == 0)
+        {
+            MoveFinish();
+            return;
+        }
+        (MapCube moveCube,Dictionary<Vector2Int, Vector2Int> moveParentDictionary,MapCube attackTargetCube) = 
+        EnemyManager.Instance.GetMoveCube(serchTargetCUbe,_allEnemies[turnInt]);
+        List<Vector2Int> routes = MapManager.Instance.GetRoute(moveCube,moveParentDictionary);
+        if(attackTargetCube != null)
+        {
+            
+            StartCoroutine(MapManager.Instance.UnitMoveCoroutine(SelectedUnit,routes,()=>
+            EnemyManager.Instance.MoveEnemy(_allEnemies[turnInt],moveCube,()=>
+            EnemyManager.Instance.AttackEnemy(_allEnemies[turnInt],attackTargetCube.CurrentUnit))
+            ));
+        }
+        else
+        {
+            StartCoroutine(MapManager.Instance.UnitMoveCoroutine(SelectedUnit,routes,()=>
+            EnemyManager.Instance.MoveEnemy(_allEnemies[turnInt],moveCube,()=>MoveFinish())));
+        }
+        
     }
     public void ClearCheck()
     {

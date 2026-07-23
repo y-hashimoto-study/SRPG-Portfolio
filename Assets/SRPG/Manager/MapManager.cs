@@ -63,12 +63,13 @@ public class MapManager : MonoBehaviour
         } 
         return neighborsCubes;
     }
-    public (List<MapCube>,Dictionary<Vector2Int,Vector2Int>)GetMoveRange(Vector2Int startPos, UnitBase selectedUnit)
+    public (List<MapCube>,Dictionary<Vector2Int,Vector2Int>,Dictionary<Vector2Int,int>)GetMoveRange(Vector2Int startPos, UnitBase selectedUnit)
     {
         List<MapCube> moveMapCubes = new List<MapCube>();
         Dictionary<Vector2Int, Vector2Int> moveParentDictionary = new Dictionary<Vector2Int, Vector2Int>();
 
         int move = selectedUnit.Mov;
+        
         Queue<Vector2Int> waitQueue = new Queue<Vector2Int>();
         Dictionary<Vector2Int, int> finishDictionary = new Dictionary<Vector2Int, int>();
         waitQueue.Enqueue(startPos);
@@ -100,8 +101,8 @@ public class MapManager : MonoBehaviour
         }
         moveMapCubes.RemoveAll(cube => cube.CurrentObject != null);
         moveMapCubes.Add(startCube);
-        SetMapCubesColor(moveMapCubes,false,Color.blue);
-        return (moveMapCubes,moveParentDictionary);
+        
+        return (moveMapCubes,moveParentDictionary,finishDictionary);
     }
     public List<MapCube> GetAttackRange(Vector2Int startPosition,int minRange,int maxRange)
     {
@@ -147,6 +148,12 @@ public class MapManager : MonoBehaviour
         }
         return false;
     } 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="targetCube">移動の目標地点</param>
+    /// <param name="moveParentDictionary">開始地点に向けて各マスの一つ前のマス</param>
+    /// <returns></returns>
     public List<Vector2Int> GetRoute(MapCube targetCube,Dictionary<Vector2Int,Vector2Int> moveParentDictionary)
     {
         List<Vector2Int> routes = new List<Vector2Int>();
@@ -213,5 +220,51 @@ public class MapManager : MonoBehaviour
         float yPosition = oldMapCube.transform.position.y - currentMapCube.transform.position.y;
         unit.transform.position = new Vector3(oldMapCube.Position.x,unit.transform.position.y-yPosition,oldMapCube.Position.y);
         oldMapCube.CurrentObject = unit;
+    }
+
+    /// <summary>
+    /// Unitがサーチ範囲にあるかを探す
+    /// 敵側の索敵
+    /// </summary>
+    /// <param name="startPos"></param>
+    /// <param name="enemy"></param>
+    /// <returns></returns>
+    public List<MapCube> GetSerchTargetUnit(Vector2Int startPos, EnemyUnit enemy)
+    {
+        List<MapCube> TargetUnitMapCubes = new List<MapCube>();
+        int serch = enemy.SerchRange;
+        
+        Queue<Vector2Int> waitQueue = new Queue<Vector2Int>();
+        Dictionary<Vector2Int, int> finishDictionary = new Dictionary<Vector2Int, int>();
+        waitQueue.Enqueue(startPos);
+        MapCube startCube = GetMapCube(startPos);
+        finishDictionary.Add(startPos,0);
+
+        while (waitQueue.Count > 0)
+        {
+            Vector2Int currentVector2Int = waitQueue.Dequeue();
+            int currentCost = finishDictionary[currentVector2Int];
+            foreach (MapCube nextCube in GetNeighborsCubes(currentVector2Int))
+            {
+                int nextCost = currentCost + nextCube.MapCost;
+                if(nextCost > serch) continue; 
+
+                if (nextCube.CurrentObject != null && enemy != null && nextCube.CurrentObject.Team != enemy.Team)
+                {
+                    TargetUnitMapCubes.Add(nextCube);
+                    continue;
+                }
+                if (finishDictionary.ContainsKey(nextCube.Position))
+                {
+                    if(nextCost >= finishDictionary[nextCube.Position]) continue;
+                    finishDictionary[nextCube.Position] = nextCost;
+                    waitQueue.Enqueue(nextCube.Position);
+                    continue;
+                }
+                finishDictionary.Add(nextCube.Position,nextCost);
+                waitQueue.Enqueue(nextCube.Position);
+            }
+        }
+        return TargetUnitMapCubes;
     }
 }

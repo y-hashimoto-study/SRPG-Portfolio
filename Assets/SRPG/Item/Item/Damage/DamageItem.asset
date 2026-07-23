@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 369723e4a7b684387ab3cae960e31ac5, type: 3}
   m_Name: DamageItem
   m_EditorClassIdentifier: Assembly-CSharp::DamageEffect
-  _DamageValue: 10
+  _damageValue: 0
   _isMagic: 0
