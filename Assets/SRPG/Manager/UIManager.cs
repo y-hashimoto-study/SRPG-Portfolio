@@ -203,7 +203,7 @@ public class UIManager : MonoBehaviour
                  BattleManager.Instance.ChangeState(BattleManager.GameState.SelectMove);
                  OpenReturnButton(BattleManager.Instance.CancelMove);
                  BattleManager.Instance.BackMoveUnit();
-                 BattleManager.Instance.ClearRangeColors(BattleManager.RangeType.Move);
+                 BattleManager.Instance.ReColorTarget(BattleManager.RangeType.Move);
                 break;
 
                 case MenuUIStateEnum.Command:

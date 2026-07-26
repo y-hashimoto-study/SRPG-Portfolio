@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class GimmickBase : MonoBehaviour,IMapObject
 {
@@ -17,9 +18,16 @@ public class GimmickBase : MonoBehaviour,IMapObject
     public int Hp => _hp;
     [SerializeField]private int _maxhp;
     public int MaxHp => _maxhp;
-    public void Damage(int attack,bool isMagic)
+    public virtual IEnumerator Damage(int attack,bool isMagic)
     {
-        
+        _hp -= attack;
+        Debug.Log($"{gameObject.name} は {attack} のダメージを受けた！ (残りHP: {_hp})");
+        //演出ここにかく
+        yield return null; 
+        if (_hp <= 0)
+        {
+            Debug.Log("破壊時のイベント");
+        }
     }
     public virtual void HealHp(int healValue)
     {

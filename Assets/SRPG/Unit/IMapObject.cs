@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using System.Collections;
 public interface IMapObject
 {
     Vector2Int Position { get; set; }
@@ -7,5 +7,5 @@ public interface IMapObject
     UnityEngine.GameObject GameObject { get; }
     bool IsAttackable { get; }
     string Name { get; }
-    void Damage(int attack , bool isMagic);
+    IEnumerator Damage(int attack , bool isMagic);
 }

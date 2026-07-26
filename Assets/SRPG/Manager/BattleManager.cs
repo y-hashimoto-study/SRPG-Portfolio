@@ -128,8 +128,7 @@ public class BattleManager : MonoBehaviour
                 if (_attackTargetRange.Contains(mapCube) && mapCube.CurrentObject != null && mapCube.CurrentObject.Team != SelectedUnit.Team)
                 {
                     CurrentGameState = GameState.Disabled;
-                    mapCube.CurrentObject.Damage(SelectedUnit.Atk,SelectedUnit.IsMagic);
-                    MoveFinish();
+                    StartCoroutine(AttackCoroutine(SelectedUnit, mapCube.CurrentObject));
                 }
             break;
 
@@ -257,7 +256,7 @@ public class BattleManager : MonoBehaviour
     public void EnemyTurn(int turnInt)
     {
         SelectedUnit = _allEnemies[turnInt];
-        //行動可能かの確認
+        //行動可能かの確認　現状は状態異常等はないため割愛
         List<MapCube> serchTargetCUbe = EnemyManager.Instance.GetSerchAttackTarget(_allEnemies[turnInt]);
         if(serchTargetCUbe.Count == 0)
         {
@@ -282,12 +281,14 @@ public class BattleManager : MonoBehaviour
         }
         
     }
-    public void ClearCheck()
+    public bool ClearCheck()
     {
         if(_allEnemies.Count == 0)
         {
             Debug.Log("クリア");
+            return true;
         }
+        else return false;
     }
     public void CancelMove()
     {
@@ -305,7 +306,6 @@ public class BattleManager : MonoBehaviour
             if(_allEnemies.Contains(dieEnemyUnit))_allEnemies.Remove(dieEnemyUnit);
         }
         dieMapCube.CurrentObject = null;
-        ClearCheck();
     }
     public void SetAttackTargetMode()
     {
@@ -412,6 +412,14 @@ public class BattleManager : MonoBehaviour
         {
             SelectedUnit.Equiped(weapon);
             //元々のものを移すこと
+        }
+    }
+    public IEnumerator AttackCoroutine(UnitBase attacker, IMapObject target)
+    {
+        yield return StartCoroutine(target.Damage(attacker.Atk,attacker.IsMagic));
+        if (!ClearCheck())
+        {
+            MoveFinish();
         }
     }
 }
