@@ -178,7 +178,6 @@ public class BattleManager : MonoBehaviour
 
         CurrentGameState = GameState.SelectUI;
     }
-    //敵の行動終了後の更新　　Dieした時に次に移ってしまうのを直したい
     public void MoveFinish()
     {
         SelectedUnit.MoveFinish();
@@ -411,8 +410,8 @@ public class BattleManager : MonoBehaviour
         if(equipedItem is WeaponData weapon)
         {
             SelectedUnit.Equiped(weapon);
-            //元々のものを移すこと
         }
+        UIManager.Instance.RefreshInventory(SelectedUnit);
     }
     public IEnumerator AttackCoroutine(IMapObject target,int attack,bool isMagic)
     {

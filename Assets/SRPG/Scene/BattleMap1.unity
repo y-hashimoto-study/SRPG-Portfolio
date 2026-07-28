@@ -10707,7 +10707,7 @@ MonoBehaviour:
   _team: 1
   _baseStatus:
     MaxHp: 3
-    Atk: 0
+    Atk: 1
     Def: 0
     MAtk: 0
     MDef: 0
@@ -11455,7 +11455,7 @@ MonoBehaviour:
   _team: 1
   _baseStatus:
     MaxHp: 3
-    Atk: 0
+    Atk: 1
     Def: 0
     MAtk: 0
     MDef: 0
@@ -12961,6 +12961,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EffectManager
   _damageTextPrefab: {fileID: 1218653217829797463, guid: 4699cf294d6c34920a6f1635b8ce7744, type: 3}
+  _effectCanvas: {fileID: 5098055105370301003}
+  _damageTextEffectTime: 1
 --- !u!1001 &1513914074
 PrefabInstance:
   m_ObjectHideFlags: 0

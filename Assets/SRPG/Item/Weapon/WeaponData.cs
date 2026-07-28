@@ -13,4 +13,8 @@ public class WeaponData : ItemBase
     public bool IsMagic => _isMagic;
     public int MinAttackRange => _minAttackRange;
     public int MaxAttackRange => _maxAttackRange;
+    public override void ClickInventory()
+    {
+        BattleManager.Instance.Equiped(this);
+    }
 }

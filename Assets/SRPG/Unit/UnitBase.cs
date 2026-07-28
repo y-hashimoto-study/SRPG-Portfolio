@@ -29,7 +29,7 @@ public abstract class UnitBase : MonoBehaviour,IMapObject
   private Material _unitMaterial;
   public bool IsAttackable => true;
 
-  private WeaponData _equipedWeapon = null;
+  [SerializeField]private WeaponData _equipedWeapon = null;
   public WeaponData EquipedWeapon => _equipedWeapon;
   public List<ItemBase> Inventory = new List<ItemBase>();
   public int MaxBagSize => (_equipedWeapon == null) ? 5:4;
@@ -100,6 +100,17 @@ public abstract class UnitBase : MonoBehaviour,IMapObject
   }
   public void Equiped(WeaponData weapon)
   {
-    _equipedWeapon = weapon;
+    if(_equipedWeapon == null)
+    {
+      _equipedWeapon = weapon;
+      Inventory.Remove(weapon);
+    }
+    else
+    {
+      WeaponData beforeweapon = _equipedWeapon;
+      _equipedWeapon = weapon;
+      Inventory.Remove(weapon);
+      Inventory.Add(beforeweapon);
+    }
   }
 }

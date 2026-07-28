@@ -11,4 +11,8 @@ public class ItemData : ItemBase
     [SerializeField] private int _maxTargetRange = 1;
     public int MinTargetRange => _minTargetRange;
     public int MaxTargetRange => _maxTargetRange;
+    public override void ClickInventory()
+    {
+        BattleManager.Instance.SetUseItem(this);
+    }
 }

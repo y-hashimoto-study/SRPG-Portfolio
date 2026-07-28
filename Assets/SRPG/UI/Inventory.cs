@@ -20,11 +20,7 @@ public class Inventory : MonoBehaviour
                 WeaponData weapon = player.EquipedWeapon;
                 if(i >= _inventoryButton.Count)return;
                 _inventoryButton[i].gameObject.SetActive(true);
-                _inventoryButton[i].SetUp(player.EquipedWeapon,true);
-
-                _inventoryButton[i].ItemButtonClicked -= BattleManager.Instance.Equiped;
-                _inventoryButton[i].ItemButtonClicked -= BattleManager.Instance.SetUseItem;
-                _inventoryButton[i].ItemButtonClicked += BattleManager.Instance.Equiped;
+                _inventoryButton[i].SetUp(weapon,true);
                 i++;
             }
             foreach (ItemBase item in player.Inventory)
@@ -32,10 +28,6 @@ public class Inventory : MonoBehaviour
                 if(i >= _inventoryButton.Count)return;
                 _inventoryButton[i].gameObject.SetActive(true);
                 _inventoryButton[i].SetUp(item,false);
-
-                _inventoryButton[i].ItemButtonClicked -= BattleManager.Instance.Equiped;
-                _inventoryButton[i].ItemButtonClicked -= BattleManager.Instance.SetUseItem;
-                _inventoryButton[i].ItemButtonClicked += BattleManager.Instance.SetUseItem;
                 i++;
             }
             while(i < _inventoryButton.Count)
@@ -43,14 +35,6 @@ public class Inventory : MonoBehaviour
                 _inventoryButton[i].gameObject.SetActive(false);
                 i++;
             }
-        }
-    }
-    void OnDisable()
-    {
-        foreach(InventoryButton button in _inventoryButton)
-        {
-            button.ItemButtonClicked -= BattleManager.Instance.Equiped;
-            button.ItemButtonClicked -= BattleManager.Instance.SetUseItem;
         }
     }
 }

@@ -21,16 +21,15 @@ public class EffectManager : MonoBehaviour
     {
         if(_damageTextPrefab == null || _effectCanvas == null) yield break; 
 
-        Vector3 spawnPosition = targetPosition + Vector3.up;
-        Vector3 screenPosition = Camera.main.WorldToScreenPoint(spawnPosition);
+        Vector3 worldPosition = targetPosition + Vector3.up;
+        Vector3 screenPosition = Camera.main.WorldToScreenPoint(worldPosition);
 
-        GameObject spawnDamage = Instantiate(_damageTextPrefab,screenPosition,Quaternion.identity);
+        GameObject spawnObject = Instantiate(_damageTextPrefab,screenPosition,Quaternion.identity);
         if (_effectCanvas != null)
         {
-            spawnDamage.transform.SetParent(_effectCanvas, true);
+            spawnObject.transform.SetParent(_effectCanvas, true);
         }
-
-        TextMeshProUGUI spawnDamageText = spawnDamage.GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI spawnDamageText = spawnObject.GetComponent<TextMeshProUGUI>();
         if(spawnDamageText != null)
         {
             spawnDamageText.text = damage.ToString();
@@ -40,9 +39,9 @@ public class EffectManager : MonoBehaviour
         while(timer < _damageTextEffectTime)
         {
             timer += Time.deltaTime;
-            spawnDamage.transform.Translate(Vector3.up * Time.deltaTime * 1f);
+            spawnObject.transform.Translate(Vector3.up * Time.deltaTime * 5f);
             yield return null;
         }
-        Destroy(spawnDamage);
+        Destroy(spawnObject);
     }
 }

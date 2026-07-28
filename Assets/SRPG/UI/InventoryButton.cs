@@ -8,7 +8,6 @@ public class InventoryButton : MonoBehaviour
    [SerializeField]private TextMeshProUGUI _name;
    [SerializeField]private Button _button;
    private ItemBase _item;
-   public Action<ItemBase> ItemButtonClicked;
    public void Awake()
     {
         _button.onClick.AddListener(ClickButton);
@@ -23,7 +22,7 @@ public class InventoryButton : MonoBehaviour
     }
     public void ClickButton()
     {
-        ItemButtonClicked?.Invoke(_item);
+        if(_item != null) _item.ClickInventory();
     }
     public void EquippedWeapon(bool equipped)
     {

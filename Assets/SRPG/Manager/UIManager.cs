@@ -165,6 +165,12 @@ public class UIManager : MonoBehaviour
         _rightStatusPanel.LockChenge = lockChenge;
         _leftStatusPanel.LockChenge = lockChenge;
     }
+    public void RefreshInventory(UnitBase unit)
+    {
+        if(MenuStack.Peek() != MenuUIStateEnum.Inventory) return;
+        _inventoryPanel.gameObject.SetActive(false);
+        OpenInventory(unit);
+    }
     public void BackMenu()
     {
         if(MenuStack.Count == 0) return;
