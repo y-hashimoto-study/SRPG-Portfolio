@@ -51,6 +51,7 @@ Assets/
     │   ├── Command.cs               # コマンドのボタン制御
     │   ├── Inventory.cs             # 所持アイテムや装備画面の管理
     │   ├── InventoryButton.cs       # インベントリ内の各アイテムボタンの制御
+    │   ├── DamageText.prefab        # ダメージを受けた時表示する見た目データ
     │   ├── Item_Button.prefab       # インベントリ内に並べるアイテムボタンの見た目データ
     │   ├── Confirmation.cs          # アイテム使用時などの確認ダイアログ
     │   ├── ReturnButton.cs          # キャンセルボタンの処理
