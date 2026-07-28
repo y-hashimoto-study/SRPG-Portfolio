@@ -128,7 +128,7 @@ public class BattleManager : MonoBehaviour
                 if (_attackTargetRange.Contains(mapCube) && mapCube.CurrentObject != null && mapCube.CurrentObject.Team != SelectedUnit.Team)
                 {
                     CurrentGameState = GameState.Disabled;
-                    StartCoroutine(AttackCoroutine(SelectedUnit, mapCube.CurrentObject));
+                    StartCoroutine(AttackCoroutine( mapCube.CurrentObject,SelectedUnit.Atk,SelectedUnit.IsMagic));
                 }
             break;
 
@@ -271,7 +271,7 @@ public class BattleManager : MonoBehaviour
             
             StartCoroutine(MapManager.Instance.UnitMoveCoroutine(SelectedUnit,routes,()=>
             EnemyManager.Instance.MoveEnemy(_allEnemies[turnInt],moveCube,()=>
-            EnemyManager.Instance.AttackEnemy(_allEnemies[turnInt],attackTargetCube.CurrentUnit))
+            EnemyManager.Instance.AttackEnemy(_allEnemies[turnInt], attackTargetCube.CurrentObject))
             ));
         }
         else
@@ -414,9 +414,13 @@ public class BattleManager : MonoBehaviour
             //元々のものを移すこと
         }
     }
-    public IEnumerator AttackCoroutine(UnitBase attacker, IMapObject target)
+    public IEnumerator AttackCoroutine(IMapObject target,int attack,bool isMagic)
     {
-        yield return StartCoroutine(target.Damage(attacker.Atk,attacker.IsMagic));
+        int hitdamage = target.Damage(attack,isMagic);
+        yield return StartCoroutine(EffectManager.Instance.CreateDamageTextCoroutine(hitdamage,target.GameObject.transform.position));
+
+        target.CheckDie();
+
         if (!ClearCheck())
         {
             MoveFinish();

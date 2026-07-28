@@ -18,19 +18,23 @@ public class GimmickBase : MonoBehaviour,IMapObject
     public int Hp => _hp;
     [SerializeField]private int _maxhp;
     public int MaxHp => _maxhp;
-    public virtual IEnumerator Damage(int attack,bool isMagic)
+    public virtual int Damage(int attack,bool isMagic)
     {
         _hp -= attack;
         Debug.Log($"{gameObject.name} は {attack} のダメージを受けた！ (残りHP: {_hp})");
-        //演出ここにかく
-        yield return null; 
+
         if (_hp <= 0)
         {
             Debug.Log("破壊時のイベント");
         }
+        return attack;
     }
     public virtual void HealHp(int healValue)
     {
 
+    }
+    public virtual void CheckDie()
+    {
+        //オブジェクトが破壊された時のイベント
     }
 }

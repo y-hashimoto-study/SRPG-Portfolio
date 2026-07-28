@@ -53,18 +53,13 @@ public abstract class UnitBase : MonoBehaviour,IMapObject
       BattleManager.Instance.AddAllUnitList(this);
     }
   }
-  public virtual IEnumerator Damage(int attack , bool isMagic)
+  public virtual int Damage(int attack , bool isMagic)
   {
     int armor = (isMagic) ? MDef : Def;
     int damage = (attack - armor > 0) ? attack - armor : 0;
     _hp -= damage;
     Debug.Log($"{gameObject.name} は {damage} のダメージを受けた！ (残りHP: {_hp})");
-    //演出ここにかく
-    yield return null; 
-    if (_hp <= 0)
-    {
-      Die();
-    }
+    return damage;
   }
   public virtual void HealHp(int healValue)
   {
@@ -92,6 +87,11 @@ public abstract class UnitBase : MonoBehaviour,IMapObject
   {
     BattleManager.Instance.DieUnit(Position);
     Destroy(gameObject);
+  }
+  public virtual void CheckDie()
+  {
+    if(Hp > 0) return;
+    Die();
   }
   public void AddItem(ItemBase getItem)
   {

@@ -7,5 +7,6 @@ public interface IMapObject
     UnityEngine.GameObject GameObject { get; }
     bool IsAttackable { get; }
     string Name { get; }
-    IEnumerator Damage(int attack , bool isMagic);
+    public int Damage(int attack , bool isMagic);
+    void CheckDie();
 }

@@ -101,8 +101,7 @@ public class EnemyManager : MonoBehaviour
     }
     public void AttackEnemy(EnemyUnit enemy,IMapObject target)
     {
-        target.Damage(enemy.Atk,enemy.IsMagic);
-        BattleManager.Instance.MoveFinish();
+        StartCoroutine(BattleManager.Instance.AttackCoroutine(target,enemy.Atk,enemy.IsMagic));
     }
     public void MoveEnemy(EnemyUnit enemy,MapCube mapCube,System.Action completeAction)
     {
