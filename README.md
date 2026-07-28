@@ -37,7 +37,8 @@ Assets/
     │   ├── MapManager.cs            # マップデータ、ダイクストラ法を用いた移動・攻撃範囲計算、マップキューブの色変更
     │   ├── UIManager.cs             # UI全体の変更、メニューの階層をスタックで管理
     │   ├── CameraManager.cs         # カメラの動きの管理
-    │   └── EnemyManager.cs          # 敵の動き、攻撃の管理
+    │   ├── EnemyManager.cs          # 敵の動き、攻撃の管理
+    │   └── EffectManager.cs         # エフェクトの管理、保持
     │
     ├── Scene/                       # ステージのシーンデータファイル
     │   ├── BattleMap1.unity         # Cubeを10×10並べたマップ
