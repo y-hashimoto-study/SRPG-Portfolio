@@ -320,7 +320,7 @@ public class BattleManager : MonoBehaviour
         {
             if(targetCube.CurrentObject != null)
             {
-                if (targetCube.CurrentObject.IsAttackable)
+                if (targetCube.CurrentObject.IsAttackable && targetCube.CurrentObject.Team != SelectedUnit.Team)
                 {
                     targetCube.CurrentColor = Color.blue;
                     targetCube.LockColor = true;
