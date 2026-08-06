@@ -7,6 +7,7 @@ public class DamageEffect : ItemEffect
     public override void UseItem(UnitBase target)
     {
         target.Damage(_damageValue,_isMagic);
+        target.CheckDie();
     }
     public override (bool,string) CanUse(UnitBase user,UnitBase target)
     {

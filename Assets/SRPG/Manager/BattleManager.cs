@@ -139,14 +139,19 @@ public class BattleManager : MonoBehaviour
              //Healを味方に使うならTeamを== Damageを敵に使うなら!=にする現在アイテムを他者に使う際はDamageのみのため!=とする
              //アイテムをGimmickに使えるようにするかでまた変更する
                 {
-                    CurrentGameState = GameState.Disabled;
                     (bool canUse,string reason) = CurrentUseItemData.Effect.CanUse(SelectedUnit,mapCube.CurrentUnit);
                 if (canUse)
                 {
+                    CurrentGameState = GameState.Disabled;
                     UIManager.Instance.SetConfirmation(() =>
                     {
                         CurrentUseItemData.Effect.UseItem(mapCube.CurrentUnit);
-                        MoveFinish();
+                        SelectedUnit.Inventory.Remove(CurrentUseItemData);
+                        CurrentUseItemData = null;
+                        if (!ClearCheck())
+                        {
+                            MoveFinish();
+                        }
                     },$"{CurrentUseItemData.name}を使いますか？");
                     UIManager.Instance.PushMenu(UIManager.MenuUIStateEnum.ItemTargetSelect);
                 }
