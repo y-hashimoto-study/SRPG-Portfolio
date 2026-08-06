@@ -1,6 +1,8 @@
 using UnityEngine;
+using System;
 using System.Collections.Generic;
 using System.Collections;
+using System.Threading.Tasks;
 public class BattleManager : MonoBehaviour
 {
     public enum GameState
@@ -112,7 +114,7 @@ public class BattleManager : MonoBehaviour
             
             case GameState.SelectMove:
              if(!_moveMapCubes.Contains(mapCube)) return;
-             if(mapCube.CurrentObject != null && mapCube.CurrentObject.GameObject != SelectedUnit.gameObject) return;
+             if(mapCube.CurrentObject != null && mapCube.CurrentUnit != SelectedUnit) return;
                           
              CameraManager.Instance.TargetCamera(SelectedUnit.transform);
              CameraManager.Instance.CanMoveCamera(false);
@@ -125,7 +127,7 @@ public class BattleManager : MonoBehaviour
             break;
 
             case GameState.AttackTarget:
-                if (_attackTargetRange.Contains(mapCube) && mapCube.CurrentObject != null && mapCube.CurrentObject.Team != SelectedUnit.Team)
+                if (_attackTargetRange.Contains(mapCube) && mapCube.CurrentObject != null && mapCube.CurrentObject.IsAttackable && mapCube.CurrentObject.Team != SelectedUnit.Team)
                 {
                     CurrentGameState = GameState.Disabled;
                     StartCoroutine(AttackCoroutine( mapCube.CurrentObject,SelectedUnit.Atk,SelectedUnit.IsMagic));
@@ -141,11 +143,11 @@ public class BattleManager : MonoBehaviour
                     (bool canUse,string reason) = CurrentUseItemData.Effect.CanUse(SelectedUnit,mapCube.CurrentUnit);
                 if (canUse)
                 {
-                    UIManager.Instance.OpenConfirmation(() =>
+                    UIManager.Instance.SetConfirmation(() =>
                     {
                         CurrentUseItemData.Effect.UseItem(mapCube.CurrentUnit);
                         MoveFinish();
-                    },CurrentUseItemData);
+                    },$"{CurrentUseItemData.name}を使いますか？");
                     UIManager.Instance.PushMenu(UIManager.MenuUIStateEnum.ItemTargetSelect);
                 }
                 else
@@ -172,8 +174,8 @@ public class BattleManager : MonoBehaviour
         MapManager.Instance.SetMapCubesColor(_moveMapCubes,true,null);
         List<MapCube> attackRangeMapCubes = MapManager.Instance.GetAttackRange(mapCube.Position,SelectedUnit.MinAttackRange,SelectedUnit.MaxAttackRange);
         bool isAttack = MapManager.Instance.CanAttackAnyTarget(attackRangeMapCubes,SelectedUnit);
-        bool isAction = MapManager.Instance.CanInteractWithGimmick(mapCube.Position);
-        UIManager.Instance.OpenCommandPass(isAction,isAttack);
+        IActionable targetactionable = MapManager.Instance.GetInteractGimmick(mapCube.Position);
+        UIManager.Instance.OpenCommandPass(targetactionable,isAttack);
         UIManager.Instance.PushMenu(UIManager.MenuUIStateEnum.Command);
 
         CurrentGameState = GameState.SelectUI;
@@ -296,7 +298,7 @@ public class BattleManager : MonoBehaviour
         MapManager.Instance.SetMapCubesColor(_moveMapCubes,true,null);
         SelectedUnit = null;
     }
-    public void DieUnit(Vector2Int diePosition)
+    public void DestoryMapObject(Vector2Int diePosition)
     {
         MapCube dieMapCube = MapManager.Instance.GetMapCube(diePosition);
         if(dieMapCube == null) return;
@@ -316,7 +318,7 @@ public class BattleManager : MonoBehaviour
         _attackTargetRange = MapManager.Instance.GetAttackRange(SelectedUnit.Position,SelectedUnit.MinAttackRange,SelectedUnit.MaxAttackRange);
         foreach(MapCube targetCube in _attackTargetRange)
         {
-            if(targetCube.CurrentObject != null && targetCube.CurrentObject.GameObject != null)
+            if(targetCube.CurrentObject != null)
             {
                 if (targetCube.CurrentObject.IsAttackable)
                 {
@@ -352,14 +354,14 @@ public class BattleManager : MonoBehaviour
             {
                 if(item.Effect != null)
                 {
-                    UIManager.Instance.OpenConfirmation(() =>
+                    UIManager.Instance.SetConfirmation(() =>
                     {
                         CurrentUseItemData.Effect.UseItem(SelectedUnit);
                         SelectedUnit.Inventory.Remove(CurrentUseItemData);
                         UIManager.Instance.CloseConfirmation();
                         CurrentUseItemData = null;
                         MoveFinish();
-                    },CurrentUseItemData);
+                    },$"{CurrentUseItemData.name}を使いますか？");
                     UIManager.Instance.PushMenu(UIManager.MenuUIStateEnum.Confirmation);
                 }
             }
@@ -409,7 +411,8 @@ public class BattleManager : MonoBehaviour
     {
         if(equipedItem is WeaponData weapon)
         {
-            SelectedUnit.Equiped(weapon);
+            if(SelectedUnit is PlayerUnit player)
+            player.Equiped(weapon);
         }
         UIManager.Instance.RefreshInventory(SelectedUnit);
     }
@@ -424,5 +427,62 @@ public class BattleManager : MonoBehaviour
         {
             MoveFinish();
         }
+    }
+    public async void ActionGimmick(IActionable targetGimmick)
+    {
+        if(targetGimmick == null)return;
+        if (SelectedUnit is PlayerUnit player)
+        {
+            bool isSuccess = await targetGimmick.ActionGimmick(player);
+
+            if (!isSuccess) return;
+            MoveFinish();
+        }
+    }
+    public Task<bool> StartItemGet(PlayerUnit player,ItemBase getItem,string message,Action completeAction)
+    {
+        TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
+        bool isFull = player.CheckInventoryFull();
+        if (!isFull)
+        {
+            UIManager.Instance.PushMenu(UIManager.MenuUIStateEnum.Message);
+            UIManager.Instance.SetMessage(message , getItem.Icon, () =>
+            {
+                player.AddItem(getItem);
+                completeAction?.Invoke();
+                tcs.SetResult(true);
+            });
+            
+        }
+        else
+        {
+            UIManager.Instance.PushMenu(UIManager.MenuUIStateEnum.Message);
+            UIManager.Instance.SetMessage(message , getItem.Icon, () =>
+            {
+               UIManager.Instance.PushMenu(UIManager.MenuUIStateEnum.Confirmation); 
+               UIManager.Instance.SetConfirmation(() =>
+                {
+                    UIManager.Instance.PushMenu(UIManager.MenuUIStateEnum.Inventory);
+                    UIManager.Instance.OpenInventory(player,(deleItem) =>
+                    {
+                        UIManager.Instance.CloseInventory();
+                        SwapIten(player,getItem,deleItem);
+                        completeAction?.Invoke();
+                        tcs.SetResult(true);
+                    });
+                }, "カバンがいっぱいです入れ替えますか？", () =>
+                {
+                    completeAction?.Invoke();
+                    UIManager.Instance.CloseConfirmation();
+                    tcs.SetResult(true);
+                });
+            });
+        }
+        return tcs.Task;
+    }
+    public void SwapIten(PlayerUnit player,ItemBase newItem,ItemBase deleteItem)
+    {
+        player.Inventory.Remove(deleteItem);
+        player.Inventory.Add(newItem);
     }
 }

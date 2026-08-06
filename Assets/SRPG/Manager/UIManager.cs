@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
@@ -11,15 +12,18 @@ public class UIManager : MonoBehaviour
         Inventory,
         AttackTargetSelect,
         ItemTargetSelect,
-        Confirmation
+        Confirmation,
+        Message
     }
     public static UIManager Instance;
-    [SerializeField] private Command _commandPanel;
-    [SerializeField] private Inventory _inventoryPanel;
-    [SerializeField] private Confirmation _confirmationPanel;
-    [SerializeField] private ReturnButton _returnPanel;
+    [SerializeField] private Command _command;
+    [SerializeField] private Inventory _inventory;
+    [SerializeField] private Confirmation _confirmation;
+    [SerializeField] private ReturnButton _return;
     [SerializeField] private LeftStatusPanel _leftStatusPanel;
     [SerializeField] private RightStatusPanel _rightStatusPanel;
+    [SerializeField] private Message _Message;
+    [SerializeField] private PopUpMessage _popUpMessage;
     private Stack<MenuUIStateEnum> MenuStack = new Stack<MenuUIStateEnum>();
     void Awake()
     {
@@ -33,10 +37,13 @@ public class UIManager : MonoBehaviour
     void Start()
     {
         MenuStack.Clear();
-        _commandPanel.gameObject.SetActive(false);
-        _inventoryPanel.gameObject.SetActive(false);
-        _confirmationPanel.gameObject.SetActive(false);
-        _returnPanel.gameObject.SetActive(false);
+        _command.gameObject.SetActive(false);
+        _inventory.gameObject.SetActive(false);
+        _confirmation.gameObject.SetActive(false);
+        _return.gameObject.SetActive(false);
+        _Message.gameObject.SetActive(false);
+        _popUpMessage.gameObject.SetActive(false);
+
         _leftStatusPanel.SetStatusActive(false);
         _rightStatusPanel.SetStatusActive(false);
     }
@@ -63,9 +70,11 @@ public class UIManager : MonoBehaviour
                  BattleManager.Instance.ClearRangeColors(BattleManager.RangeType.Item);
                  CloseReturnButton();
                 break;
+                case MenuUIStateEnum.Message:
+                 CloseMessage();
+                break;
                 case MenuUIStateEnum.Confirmation:
-                 CloseConfirmation();//なり得ないよう設計すること
-                 Debug.Log("エラーこの状態にはならないはず Confiremation");
+                 CloseConfirmation();
                 break;
             }
         }
@@ -74,10 +83,11 @@ public class UIManager : MonoBehaviour
     public void ClearMenuStack()
     {
         MenuStack.Clear();
-        _commandPanel.gameObject.SetActive(false);
-        _inventoryPanel.gameObject.SetActive(false);
-        _confirmationPanel.gameObject.SetActive(false);
-        _returnPanel.gameObject.SetActive(false);
+        _command.gameObject.SetActive(false);
+        _inventory.gameObject.SetActive(false);
+        _confirmation.gameObject.SetActive(false);
+        _return.gameObject.SetActive(false);
+        _Message.gameObject.SetActive(false);
     }
     /// <summary>
     /// Pushを外からすること
@@ -85,8 +95,8 @@ public class UIManager : MonoBehaviour
     /// <param name="returnMethod"></param>
     public void OpenReturnButton(Action returnMethod)
     {
-        _returnPanel.gameObject.SetActive(true);
-        _returnPanel.ReturnAction = () =>
+        _return.gameObject.SetActive(true);
+        _return.ReturnAction = () =>
         {
             if(BattleManager.Instance.CurrentGameState == BattleManager.GameState.Disabled) return;
              if(returnMethod != null)returnMethod();
@@ -95,41 +105,56 @@ public class UIManager : MonoBehaviour
     }
     public void CloseReturnButton()
     {
-        _returnPanel.gameObject.SetActive(false);
+        _return.gameObject.SetActive(false);
     }
-    public void OpenCommandPass(bool isAction,bool isAttack)
+    public void OpenCommandPass(IActionable actionable,bool isAttack)
     {
-        _commandPanel.gameObject.SetActive(true);
-        _commandPanel.OpenCommand(isAction,isAttack);
+        _command.gameObject.SetActive(true);
+        _command.OpenCommand(actionable,isAttack);
     }
     public void CloseCommand()
     {
-        _commandPanel.gameObject.SetActive(false);
+        _command.gameObject.SetActive(false);
     }
-    public void OpenInventory(UnitBase unit)
+    public void OpenInventory(UnitBase unit,Action<ItemBase> customClickAction = null)
     {
-        _inventoryPanel.gameObject.SetActive(true);
-        _inventoryPanel.OpenInventory(unit);
+        _inventory.gameObject.SetActive(true);
+        _inventory.OpenInventory(unit,customClickAction);
     }
     public void CloseInventory()
     {
-        _inventoryPanel.gameObject.SetActive(false);
+        _inventory.gameObject.SetActive(false);
     }
-    public void OpenConfirmation(Action action,ItemBase item)
+    public void SetConfirmation(Action yesAction, string confirmationText,Action noAction = null)
     {
-        _confirmationPanel.gameObject.SetActive(true);
-        _confirmationPanel.SetUp(item.name + "を使いますか?");
-        _confirmationPanel.YesAction += action;
-        _confirmationPanel.NoAction += BackMenu;
-
+        _confirmation.gameObject.SetActive(true);
+        _confirmation.SetUp(confirmationText);
+        _confirmation.YesAction = yesAction;
+        if(noAction == null)
+        {
+            _confirmation.NoAction = () => BackMenu();
+        }
+        else
+        {
+            _confirmation.NoAction = noAction;
+        }
     }
     public void CloseConfirmation()
     {
-        _confirmationPanel.gameObject.SetActive(false);
+        _confirmation.gameObject.SetActive(false);
+    }
+    public void SetMessage(string message ,Sprite itemSprite,Action completeAction)
+    {
+        _Message.gameObject.SetActive(true);
+        _Message.SetUp(message,itemSprite,completeAction);
+    }
+    public void CloseMessage()
+    {
+        _Message.gameObject.SetActive(false);
     }
     public void SetStatusPanel(IMapObject imapObject)
     {
-        if(imapObject == null)
+        if(imapObject == null || imapObject.GameObject == null)
         {
             _rightStatusPanel.SetStatusActive(false);
             _leftStatusPanel.SetStatusActive(false);
@@ -168,8 +193,13 @@ public class UIManager : MonoBehaviour
     public void RefreshInventory(UnitBase unit)
     {
         if(MenuStack.Peek() != MenuUIStateEnum.Inventory) return;
-        _inventoryPanel.gameObject.SetActive(false);
+        _inventory.gameObject.SetActive(false);
         OpenInventory(unit);
+    }
+    public void PopUpMessage(string message)
+    {
+        _popUpMessage.gameObject.SetActive(true);
+        _popUpMessage.PopUp(message);
     }
     public void BackMenu()
     {
@@ -182,7 +212,7 @@ public class UIManager : MonoBehaviour
             break;
             
             case MenuUIStateEnum.Command:
-             _commandPanel.gameObject.SetActive(false);
+             _command.gameObject.SetActive(false);
             break;
 
             case MenuUIStateEnum.AttackTargetSelect:
@@ -190,14 +220,19 @@ public class UIManager : MonoBehaviour
             break;
 
             case MenuUIStateEnum.Inventory:
-             _inventoryPanel.gameObject.SetActive(false);
+             CloseInventory();
             break;
             
             case MenuUIStateEnum.ItemTargetSelect:
              CloseReturnButton();
             break;
+
+            case MenuUIStateEnum.Message:
+             CloseMessage();
+            break;
+
             case MenuUIStateEnum.Confirmation:
-             _confirmationPanel.gameObject.SetActive(false);
+             CloseConfirmation();
             break;
         }
         if(MenuStack.Count > 0)
@@ -214,7 +249,7 @@ public class UIManager : MonoBehaviour
 
                 case MenuUIStateEnum.Command:
                  BattleManager.Instance.ChangeState(BattleManager.GameState.SelectUI);
-                 _commandPanel.gameObject.SetActive(true);
+                 _command.gameObject.SetActive(true);
                 break;
 
                 case MenuUIStateEnum.AttackTargetSelect:
@@ -231,6 +266,10 @@ public class UIManager : MonoBehaviour
                  BattleManager.Instance.ReColorTarget(BattleManager.RangeType.Item);
                  OpenReturnButton(()=>BattleManager.Instance.ClearRangeColors(BattleManager.RangeType.Item));
                  BattleManager.Instance.ChangeState(BattleManager.GameState.ItemTargetSelect);
+                break;
+                case MenuUIStateEnum.Message:
+                 //なり得ないように設計すること
+                 Debug.Log($"エラーこの状態にはならないはず{beforeStack}");;
                 break;
 
                 case MenuUIStateEnum.Confirmation:

@@ -1,16 +1,23 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using TMPro; 
 public class Command : MonoBehaviour
 {
     [SerializeField] private Button ActionButton;
+    [SerializeField] private TextMeshProUGUI ActionButtonText;
+    private IActionable _targetGimmick;
     [SerializeField] private Button AttackButton;
     [SerializeField] private Button WaitButton;
     [SerializeField] private Button ItemButton;
     [SerializeField] private Button ReturnButton;
     void Start()
     {
-        ActionButton.onClick.AddListener(ToDOACtion);
+        ActionButton.onClick.AddListener(() =>
+        {
+            UIManager.Instance.CloseCommand();
+            BattleManager.Instance.ActionGimmick(_targetGimmick);
+        });
         AttackButton.onClick.AddListener(BattleManager.Instance.SetAttackTargetMode);
         WaitButton.onClick.AddListener(BattleManager.Instance.MoveFinish);
         ItemButton.onClick.AddListener(() =>
@@ -21,13 +28,22 @@ public class Command : MonoBehaviour
         
         ReturnButton.onClick.AddListener(UIManager.Instance.BackMenu);
     }
-    public void OpenCommand(bool isAction,bool isAttack)
+    public void OpenCommand(IActionable actionable,bool isAttack)
     {
-        ActionButton.gameObject.SetActive(isAction);
+        if(actionable == null)
+        {
+            ActionButton.gameObject.SetActive(false);
+        }
+        else
+        {
+            _targetGimmick = actionable;
+            ActionButtonText.text = actionable.ActionName;
+            ActionButton.gameObject.SetActive(true);
+        }
         AttackButton.gameObject.SetActive(isAttack);
     }
-    public void ToDOACtion()
+    void Disabled()
     {
-        Debug.Log("宝箱を開けるなどのイベント");
+        _targetGimmick = null;
     }
 }

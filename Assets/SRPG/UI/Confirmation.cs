@@ -4,7 +4,6 @@ using TMPro;
 using System;
 public class Confirmation : MonoBehaviour
 {
-
     [SerializeField] private Button _yesButton;
     [SerializeField] private Button _noButton;
     [SerializeField]private TextMeshProUGUI _messageText;

@@ -29,7 +29,7 @@ public abstract class UnitBase : MonoBehaviour,IMapObject
   private Material _unitMaterial;
   public bool IsAttackable => true;
 
-  [SerializeField]private WeaponData _equipedWeapon = null;
+  [SerializeField]protected WeaponData _equipedWeapon = null;
   public WeaponData EquipedWeapon => _equipedWeapon;
   public List<ItemBase> Inventory = new List<ItemBase>();
   public int MaxBagSize => (_equipedWeapon == null) ? 5:4;
@@ -85,7 +85,7 @@ public abstract class UnitBase : MonoBehaviour,IMapObject
   }
   public virtual void Die()
   {
-    BattleManager.Instance.DieUnit(Position);
+    BattleManager.Instance.DestoryMapObject(Position);
     Destroy(gameObject);
   }
   public virtual void CheckDie()
@@ -93,24 +93,5 @@ public abstract class UnitBase : MonoBehaviour,IMapObject
     if(Hp > 0) return;
     Die();
   }
-  public void AddItem(ItemBase getItem)
-  {
-    if(Inventory.Count >= MaxBagSize) return;//入れ替えるイベントを作っても良い
-    Inventory.Add(getItem);
-  }
-  public void Equiped(WeaponData weapon)
-  {
-    if(_equipedWeapon == null)
-    {
-      _equipedWeapon = weapon;
-      Inventory.Remove(weapon);
-    }
-    else
-    {
-      WeaponData beforeweapon = _equipedWeapon;
-      _equipedWeapon = weapon;
-      Inventory.Remove(weapon);
-      Inventory.Add(beforeweapon);
-    }
-  }
+  
 }

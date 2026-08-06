@@ -71,7 +71,7 @@ public class EnemyManager : MonoBehaviour
             if(attakTargetRanges.Count == 0) continue;
             foreach (MapCube moveCube in attakTargetRanges)
             {
-                if(moveRanges.Contains(moveCube) && (moveCube.CurrentObject == null || moveCube.Position == startPosition))
+                if(moveRanges.Contains(moveCube) && (moveCube.CurrentObject == null || moveCube.CurrentObject.GameObject == null || moveCube.Position == startPosition))
                 {
                     return (moveCube,moveParentDictionary,targetCube);
                 }
@@ -84,7 +84,7 @@ public class EnemyManager : MonoBehaviour
 
         foreach (MapCube moveRangeCube in moveRanges)
         {
-            if(moveRangeCube.CurrentObject != null && moveRangeCube.Position != startPosition) continue;
+            if(moveRangeCube.CurrentObject != null && moveRangeCube.CurrentObject.GameObject != null && moveRangeCube.Position != startPosition) continue;
             int distance = Mathf.Abs(moveRangeCube.Position.x - nearTargetMapCUbe.Position.x) +
             Mathf.Abs(moveRangeCube.Position.y - nearTargetMapCUbe.Position.y);
             if(distance < befordistance)

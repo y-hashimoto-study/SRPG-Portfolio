@@ -17,7 +17,7 @@ public class LeftStatusPanel : MonoBehaviour
     public void SetUp(IMapObject setObject)
     {
         if(LockChenge) return;
-        if(setObject == null)
+        if(setObject == null || setObject.GameObject == null)
         {
             _backImage.gameObject.SetActive(false);
             return;

@@ -36,7 +36,6 @@ public class MapManager : MonoBehaviour
                 _mapCubeDictionary.Add(cubePosition, cube);
             }
         }     
-        Debug.Log($"{_mapCubeDictionary.Count}個のマスを認識しました！");
     }
     public MapCube GetMapCube(Vector2Int position)
     {
@@ -128,7 +127,7 @@ public class MapManager : MonoBehaviour
     {
         foreach(MapCube cube in rangeCubes)
         {
-            if(cube.CurrentObject == null || cube.CurrentObject.GameObject == null) continue;
+            if(cube.CurrentObject == null) continue;
             if(cube.CurrentObject.IsAttackable)
             {
                 if(unit.Team == cube.CurrentObject.Team)continue;
@@ -137,16 +136,20 @@ public class MapManager : MonoBehaviour
         }
         return false;
     }
-    public bool CanInteractWithGimmick(Vector2Int startPosition)
+    /// <summary>
+    /// アクション可能なギミックがあるか調べる　一つのみ返す　複数のギミックが重ならないように
+    /// </summary>
+    /// <param name="startPosition"></param>
+    /// <returns></returns>
+    public IActionable GetInteractGimmick(Vector2Int startPosition)
     {
         List<MapCube> targetCubes= GetNeighborsCubes(startPosition);
-        //startCube. MapCubeに何か落ちているかを持たせる?
         foreach (MapCube targetCube in targetCubes)
         {
-            if(targetCube.CurrentObject == null || targetCube.CurrentObject.GameObject == null) continue;
-            if(targetCube.CurrentGimmick != null && targetCube.CurrentGimmick.IsActionable) return true;
+            if(targetCube.CurrentObject == null) continue;
+            if(targetCube.CurrentGimmick != null && targetCube.CurrentGimmick is IActionable actionable) return actionable;
         }
-        return false;
+        return null;
     } 
     /// <summary>
     /// 
@@ -249,7 +252,8 @@ public class MapManager : MonoBehaviour
                 int nextCost = currentCost + nextCube.MapCost;
                 if(nextCost > serch) continue; 
 
-                if (nextCube.CurrentObject != null && enemy != null && nextCube.CurrentObject.Team != enemy.Team)
+                if (nextCube.CurrentObject != null && enemy != null 
+                && nextCube.CurrentObject.Team != enemy.Team)
                 {
                     TargetUnitMapCubes.Add(nextCube);
                     continue;

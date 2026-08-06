@@ -17,7 +17,7 @@ public class RightStatusPanel : MonoBehaviour
     public void SetUp(IMapObject setObject)
     {
         if(LockChenge) return;
-        if(setObject == null)
+        if(setObject == null || setObject == null)
         {
             _backImage.gameObject.SetActive(false);
             return;
