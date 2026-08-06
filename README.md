@@ -13,7 +13,7 @@ Assets/
     │   ├── PlayerInput.cs           # InputSystemによる自動生成
     │   └── PlayerInput.inputactions
     │
-    Item/                            # アイテム・装備のデータファイル
+    ├──Item/                         # アイテム・装備のデータファイル
     │   ├── ItemBase.cs              # アイテムと装備の共通の親クラス
     │   ├── Item/                    # アイテムのデータと効果のデータファイル
     │   │   ├── ItemData.cs          # アイテムの親クラス
