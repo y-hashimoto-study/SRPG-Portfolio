@@ -21,16 +21,16 @@ Assets/
     │   │   ├── Damage/              # 攻撃アイテムのデータファイル
     │   │   │   ├── DamageEffect.cs  # 攻撃アイテムを使ったときの効果
     │   │   │   ├── DamageItem.asset # 攻撃アイテムの設定データ
- 　　│   │   │   └── Bomb.asset       # 攻撃アイテムのデータ
-    │   │   └── Heal/               # 回復アイテムのデータファイル
+ 　　│   │   │   └── Bomb.asset       # 攻撃アイテム
+    │   │   └── Heal/                # 回復アイテムのデータファイル
     │   │       ├── HealEffect.cs    # 回復アイテムを使ったときの効果
     │   │       ├── HealItem.asset   # 回復アイテムの設定データ
- 　　│   │       └── Potion.asset     # 回復アイテムのデータ
-    │   ├── Weapon/                  # 装備のデータファイル
-    │   ├── WeaponData.cs            # 装備の親クラス
-    │   ├── Arrow.asset              # 武器のデータ
-    │   ├── Axe.asset                # 武器のデータ
-    │   └── Staff.asset              # 武器のデータ
+ 　　│   │       └── Potion.asset     # 回復アイテム
+    │   └── Weapon/                  # 装備のデータファイル
+    │       ├── WeaponData.cs        # 武器のデータ
+    │       ├── Arrow.asset          # 武器のデータ
+    │       ├── Axe.asset            # 武器のデータ
+    │       └── Staff.asset          # 武器のデータ
     │
     ├── Manager/                     # ゲーム全体のルールや進行、計算を行うマネージャーのデータファイル
     │   ├── BattleManager.cs  　　    # 戦闘ルール、状態管理、ターン進行
@@ -57,7 +57,9 @@ Assets/
     │   ├── ReturnButton.cs          # キャンセルボタンの処理
     │   ├── NotoSansJP.ttf           # テキスト表示に使用しているフォントデータ
     │   ├── LeftStatusPanel.cs       # 敵のステータス表示の管理
-    │   └── RightStatusPanel.cs      # プレイヤーのステータス表示の管理
+    │   ├── RightStatusPanel.cs      # プレイヤーのステータス表示の管理
+    │   ├── Message.cs               # 画面にメッセージを出す処理
+    │   └── PopUpMessage.cs          # 画面に簡易的なメッセージを出す処理
     │
     └── Unit/                        # キャラクターやマップ上のギミックのデータファイル
         ├── UnitBase.cs              # すべてのユニットの親クラス
@@ -68,5 +70,11 @@ Assets/
         ├── Enemy/                   # 敵キャラクターのデータファイル
         │   └── EnemyUnit.cs         # 敵ユニット用のクラス
         └── Gimmick/                 # マップ上のギミックのデータファイル
-            └── GimmickBase.cs       # ギミックの親クラス
+            ├── GimmickBase.cs       # ギミックの親クラス
+　　　　　　　　├── IActionable.cs.      # アクションを行うことができるオブジェクト用の共通インターフェース
+            └── Chest/               # 調べることでアイテムを獲得できるギミックのデータファイル
+                └── DamageEffect.cs  # 調べることでアイテムを獲得できるギミック
+
+
+
 ```
